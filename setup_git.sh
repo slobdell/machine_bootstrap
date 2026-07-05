@@ -27,6 +27,22 @@ fi
 eval "$(ssh-agent -s)"
 ssh-add "$HOME/.ssh/id_ed25519"
 
+# Configure ssh client config for GitHub
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+if [ ! -f "$HOME/.ssh/config" ] || ! grep -q "Host github.com" "$HOME/.ssh/config"; then
+    echo "Configuring SSH config to automatically use this key for GitHub..."
+    cat <<EOF >> "$HOME/.ssh/config"
+
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+EOF
+    chmod 600 "$HOME/.ssh/config"
+fi
+
 echo "======================================================================"
 echo "You need to copy your public key to your GitHub account settings."
 echo "Go to GitHub > Settings > SSH and GPG keys > New SSH Key."

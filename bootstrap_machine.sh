@@ -106,15 +106,17 @@ sudo udevadm trigger
 # Add user to the dialout group (needed for USB serial devices)
 sudo usermod -a -G dialout "${TARGET_USER}"
 
-# Download latest Arduino IDE AppImage
-mkdir -p "${TARGET_HOME}/Desktop"
-cd "${TARGET_HOME}/Desktop"
-if [ ! -f arduino-ide_latest_Linux_64bit.AppImage ]; then
-    echo "Downloading Arduino IDE AppImage..."
-    wget https://downloads.arduino.cc/arduino-ide/arduino-ide_latest_Linux_64bit.AppImage
-    chmod +x arduino-ide_latest_Linux_64bit.AppImage
+# Download latest Arduino IDE AppImage if requested
+if [ "${INSTALL_GUI_IDE}" = "true" ]; then
+    mkdir -p "${TARGET_HOME}/Desktop"
+    cd "${TARGET_HOME}/Desktop"
+    if [ ! -f arduino-ide_latest_Linux_64bit.AppImage ]; then
+        echo "Downloading Arduino IDE AppImage..."
+        wget https://downloads.arduino.cc/arduino-ide/arduino-ide_latest_Linux_64bit.AppImage
+        chmod +x arduino-ide_latest_Linux_64bit.AppImage
+    fi
+    cd - > /dev/null
 fi
-cd - > /dev/null
 
 # Configure arduino-cli
 arduino-cli config init || true
