@@ -1,0 +1,18 @@
+escape ^oa
+autodetach on
+startup_message off
+
+hardstatus on
+hardstatus alwayslastline
+hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %H %{..Y} %m/%d %C%a "
+
+screen -t 'src tree'
+screen -t 'build log'
+screen -t 'blz bld'
+screen -t 'hacking'
+screen -t 'commands'
+screen -t 'background1'
+screen -t 'background2'
+screen -t 'background3'
+screen -t 'moar1'
+screen -t 'moar2'

@@ -1,0 +1,35 @@
+# Local configuration files (contains secrets/PII)
+config.env
+.env
+
+# ComfyUI (if ever recreated locally)
+ComfyUI/
+
+# Key material and secrets
+*.pem
+id_ed25519*
+id_rsa*
+.git-credentials
+.netrc
+
+# Virtual Environments and Python Cache
+venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# System / OS specific files
+.DS_Store
+Thumbs.db
+.direnv/
+.envrc
+
+# Arduino-cli built binaries/caches (optional but good hygiene)
+bin/
+arduino-cli
+00-teensy.rules
+
+# Vim swap files
+*.swp
+.*.swp
