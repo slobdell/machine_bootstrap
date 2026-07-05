@@ -12,22 +12,14 @@ This repository contains personal machine-bootstrapping scripts and dotfiles to 
   - ArduPilot completion rules and Gazebo simulation paths.
 - **Skins & Utilities**: CMake, Git LFS, htop, ripgrep, tree, ffmpeg, net-tools, etc.
 - **Identity & Networking**: Git credentials setup, SSH key registration, and ZeroTier LAN connection.
-- **Development Ecosystems**: Python, Go, and Arduino toolchain (`arduino-cli` + Teensy 4.x support).
+- **Development Ecosystems**: Python, Go, and Arduino toolchain (`arduino-cli` + Teensy 4.x support + Arduino IDE AppImage).
 
 ---
 
 ## 🚀 Getting Started
 
-To bootstrap a fresh Ubuntu installation (such as a headless server):
-
-### Step 0: Ensure SSH Access (For Headless Servers)
-Before running this script from your local machine, copy your local public SSH key to the fresh server to allow passwordless access:
-```bash
-ssh-copy-id username@new-server-ip
-```
-
 ### Step 1: Clone the Repository
-Log into the server over SSH, then clone this repository:
+Clone this repository to your local directory (e.g., `~/machine-bootstrap`):
 ```bash
 git clone <your-repo-ssh-url> ~/machine-bootstrap
 cd ~/machine-bootstrap
@@ -41,8 +33,8 @@ vim config.env
 ```
 Ensure you fill in:
 - Your Git identity (`GIT_NAME`, `GIT_EMAIL`).
-- Any ArduPilot/extra repos you want cloned automatically.
-- `INSTALL_GUI_IDE="false"` if this is a headless server (prevents downloading the graphical Arduino IDE AppImage).
+- Your ArduPilot fork URL (if applicable).
+- Any extra repositories you want cloned automatically (like `plane_maker.git`).
 
 ### Step 3: Run the Master Bootstrap Script
 Execute the main master orchestration script:
@@ -52,12 +44,34 @@ Execute the main master orchestration script:
 This script will:
 1. Update system packages and install standard dev tools.
 2. Setup the ArduPilot environment & programming languages (Go, Python).
-3. Setup the Arduino CLI and Teensy rules.
-4. Download the Arduino IDE AppImage (only if `INSTALL_GUI_IDE="true"`).
-5. Download `git-prompt.sh` for prompt customization.
-6. Back up existing user configurations (`~/.bashrc`, `~/.vimrc`, `~/.screenrc`) and link the new versions.
-7. Install vim-nox, set default editors, and finalize file ownerships.
-8. Generate SSH keys, map them to `github.com` in `~/.ssh/config`, and output the public key to add to GitHub.
-9. Install and configure ZeroTier.
+3. Setup the Arduino CLI, Teensy rules, and download the Arduino IDE AppImage.
+4. Download `git-prompt.sh` for prompt customization.
+5. Back up existing user configurations (`~/.bashrc`, `~/.vimrc`, `~/.screenrc`) and link the new versions.
+6. Install vim-nox, set default editors, and finalize file ownerships.
+7. Generate SSH keys, map them to `github.com` in `~/.ssh/config`, and output the public key to add to GitHub.
+8. Install and configure ZeroTier.
 
 *Note: You should log out and log back in for all changes (such as the `dialout` group membership) to take effect.*
+
+---
+
+## 🔑 SSH Agent Forwarding (Pro-Tip for Headless Servers)
+Instead of generating a new SSH key on every server and copying it to GitHub, you can use **SSH Agent Forwarding**. This lets the remote server securely authenticate with GitHub using the SSH keys already present on your local machine.
+
+### How to use it:
+1. **Add keys local agent**: On your local computer, make sure your SSH key is added to your local SSH agent:
+   ```bash
+   ssh-add ~/.ssh/id_ed25519
+   ```
+2. **Connect with agent forwarding**: Log into your remote server using the `-A` flag:
+   ```bash
+   ssh -A username@new-server-ip
+   ```
+3. **Automate in ssh config**: Alternatively, you can configure your local `~/.ssh/config` file to always enable agent forwarding when connecting to this server:
+   ```
+   Host your-server-alias
+       HostName new-server-ip
+       User username
+       ForwardAgent yes
+   ```
+Once connected, commands like `git clone` or `git pull` on the remote server will transparently utilize your local SSH key!
