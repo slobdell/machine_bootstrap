@@ -76,6 +76,15 @@ PROJECTS_DIR="${TARGET_HOME}/projects"
 if [ ! -d "$PROJECTS_DIR/ardupilot" ]; then
     echo "Cloning ArduPilot into $PROJECTS_DIR..."
     git clone --recursive https://github.com/ArduPilot/ardupilot.git "$PROJECTS_DIR/ardupilot"
+    
+    # Configure fork remote if specified
+    if [ -n "${ARDUPILOT_FORK_URL}" ]; then
+        echo "Configuring fork remote for ArduPilot..."
+        cd "$PROJECTS_DIR/ardupilot"
+        git remote add fork "${ARDUPILOT_FORK_URL}"
+        cd - > /dev/null
+    fi
+    
     echo "Running ArduPilot prerequisite script..."
     # Note: We CD into the directory because some scripts expect relative paths
     cd "$PROJECTS_DIR/ardupilot"

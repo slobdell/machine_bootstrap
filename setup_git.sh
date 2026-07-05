@@ -36,16 +36,18 @@ cat "$HOME/.ssh/id_ed25519.pub"
 echo "======================================================================"
 echo "Once added, you can test it with: ssh -T git@github.com"
 
-# Optionally clone private repository if configured
-if [ -n "${PRIVATE_REPO_URL}" ]; then
+# Optionally clone extra repositories if configured
+if [ -n "${EXTRA_REPOS_TO_CLONE}" ]; then
     mkdir -p "$HOME/projects"
     cd "$HOME/projects"
     
-    REPO_NAME=$(basename "${PRIVATE_REPO_URL}" .git)
-    if [ ! -d "${REPO_NAME}" ]; then
-        echo "Cloning configured private repository into $HOME/projects/${REPO_NAME}..."
-        git clone "${PRIVATE_REPO_URL}"
-    else
-        echo "Repository ${REPO_NAME} already exists in $HOME/projects, skipping clone."
-    fi
+    for repo in ${EXTRA_REPOS_TO_CLONE}; do
+        REPO_NAME=$(basename "${repo}" .git)
+        if [ ! -d "${REPO_NAME}" ]; then
+            echo "Cloning configured repository into $HOME/projects/${REPO_NAME}..."
+            git clone "${repo}"
+        else
+            echo "Repository ${REPO_NAME} already exists in $HOME/projects, skipping clone."
+        fi
+    done
 fi
