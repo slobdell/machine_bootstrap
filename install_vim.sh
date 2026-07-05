@@ -39,10 +39,14 @@ log "Vim and dependencies installed."
 log "Setting vim-nox as the default for the 'vim' command with sudo..."
 sudo update-alternatives --set vim /usr/bin/vim.nox
 
-# --- Step 4: Create the .vimrc file ---
-# This writes to the user's home directory and does NOT need sudo.
-log "Creating the .vimrc file at ${USER_HOME}/.vimrc"
-cat <<'EOF' > "${USER_HOME}/.vimrc"
+# --- Step 4: Ensure the .vimrc file exists ---
+if [ ! -f "${USER_HOME}/.vimrc" ]; then
+    if [ -f "${SCRIPT_DIR}/.vimrc" ]; then
+        log "Copying the .vimrc file from repository to ${USER_HOME}/.vimrc"
+        cp "${SCRIPT_DIR}/.vimrc" "${USER_HOME}/.vimrc"
+    else
+        log "Creating default .vimrc at ${USER_HOME}/.vimrc"
+        cat <<'EOF' > "${USER_HOME}/.vimrc"
 " --- A Simple, Robust, No-Plugin .vimrc ---
 
 " Set nocompatible mode.
@@ -115,7 +119,11 @@ augroup filetype_settings
 augroup END
 
 EOF
-log ".vimrc file created."
+    fi
+    log ".vimrc file deployed."
+else
+    log ".vimrc file already exists at ${USER_HOME}/.vimrc, skipping creation/copying."
+fi
 
 # --- Step 5: Set Correct File Ownership using sudo ---
 # Using sudo here is a safety measure to guarantee correct ownership,
