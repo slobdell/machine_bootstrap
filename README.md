@@ -23,9 +23,14 @@ If you are setting up dual-boot Windows & Ubuntu on a laptop, please follow the 
 Once Ubuntu is installed, proceed with the following steps.
 
 ### Step 1: Clone the Repository
-Clone this repository to your local directory (e.g., `~/machine-bootstrap`):
+On your fresh Ubuntu installation, open a terminal (`Ctrl + Alt + T`). First, install `git` so that you can clone this repository:
 ```bash
-git clone <your-repo-ssh-url> ~/machine-bootstrap
+sudo apt update && sudo apt install -y git
+```
+
+Next, clone the repository. If you choose to make this repository **public** (recommended, as all secrets and keys are ignored via `.gitignore`), you can clone it directly without any pre-existing authentication:
+```bash
+git clone https://github.com/slobdell/machine_bootstrap.git ~/machine-bootstrap
 cd ~/machine-bootstrap
 ```
 
