@@ -30,16 +30,20 @@ echo "========================================================================"
 echo "--- Creating Projects Directory ---"
 mkdir -p "${TARGET_HOME}/projects"
 
+# Clean up any potential broken repository files from previous runs
+# (e.g., empty GPG key file or bad sources list)
+if [ ! -f /usr/share/keyrings/githubcli-archive-keyring.gpg ] || [ ! -s /usr/share/keyrings/githubcli-archive-keyring.gpg ]; then
+    echo "Cleaning up potential broken GitHub CLI repository config..."
+    sudo rm -f /etc/apt/sources.list.d/github-cli.list
+    sudo rm -f /usr/share/keyrings/githubcli-archive-keyring.gpg
+fi
+
 # Add repository for latest git version
 sudo add-apt-repository ppa:git-core/ppa -y
 
 # Add repository for GitHub CLI (gh)
 if ! command -v gh &> /dev/null; then
     echo "Adding repository for GitHub CLI..."
-    # Clean up any potential broken files from previous runs
-    sudo rm -f /etc/apt/sources.list.d/github-cli.list
-    sudo rm -f /usr/share/keyrings/githubcli-archive-keyring.gpg
-    
     # Ensure curl and gnupg are installed first
     sudo apt update && sudo apt install -y curl gnupg
     
