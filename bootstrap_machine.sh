@@ -33,6 +33,14 @@ mkdir -p "${TARGET_HOME}/projects"
 # Add repository for latest git version
 sudo add-apt-repository ppa:git-core/ppa -y
 
+# Add repository for GitHub CLI (gh)
+if ! command -v gh &> /dev/null; then
+    echo "Adding repository for GitHub CLI..."
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+fi
+
 echo "--- Initializing System Update ---"
 sudo apt update && sudo apt upgrade -y
 
@@ -45,6 +53,7 @@ sudo apt install -y \
     cmake \
     git \
     git-lfs \
+    gh \
     vim \
     screen \
     curl \

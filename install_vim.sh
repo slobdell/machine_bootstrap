@@ -32,6 +32,19 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y vim-nox golang-go
 log "Creating user's .vim/undo directory..."
 mkdir -p "${USER_HOME}/.vim/undo"
 
+# --- Step 2.5: Install Vim Commentary (Native Package) ---
+log "Installing vim-commentary via native package manager..."
+mkdir -p "${USER_HOME}/.vim/pack/vendor/start"
+if [ ! -d "${USER_HOME}/.vim/pack/vendor/start/vim-commentary" ]; then
+    log "Cloning vim-commentary repository..."
+    git clone https://github.com/tpope/vim-commentary.git "${USER_HOME}/.vim/pack/vendor/start/vim-commentary"
+else
+    log "vim-commentary is already installed. Pulling latest updates..."
+    cd "${USER_HOME}/.vim/pack/vendor/start/vim-commentary"
+    git pull || log "Warning: Failed to update vim-commentary. Continuing anyway."
+    cd - > /dev/null
+fi
+
 log "Vim and dependencies installed."
 
 # --- Step 3: Set vim-nox as the Default Editor using sudo ---

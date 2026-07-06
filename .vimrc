@@ -61,8 +61,17 @@ nnoremap <leader>e :Explore<CR>
 " --- Language-Specific Settings ---
 augroup filetype_settings
   autocmd!
+  " Treat .ino and .pde files as C++ (for Arduino development syntax highlighting)
+  autocmd BufNewFile,BufRead *.ino,*.pde setfiletype cpp
+
   " Use real tabs for Makefiles, as is required.
   autocmd FileType make setlocal noexpandtab shiftwidth=8 tabstop=8
+
+  " Go files settings: use real tabs, not spaces, matching standard gofmt style
+  autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4 softtabstop=4
+
+  " Python files settings: enforce standard PEP 8 spacing
+  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
 
   " Run gofmt on Go files before saving.
   " This command filters the entire buffer through gofmt, updating it in place.

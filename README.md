@@ -18,6 +18,10 @@ This repository contains personal machine-bootstrapping scripts and dotfiles to 
 
 ## 🚀 Getting Started
 
+If you are setting up dual-boot Windows & Ubuntu on a laptop, please follow the [Dual-Boot Windows & Ubuntu Setup Guide](file:///home/slobdell/Desktop/MAKE_THIS_A_GIT_REPO/DUAL_BOOT_GUIDE.md) first to prepare Windows, flash the bootable USB, configure BIOS/UEFI settings, and perform the installation.
+
+Once Ubuntu is installed, proceed with the following steps.
+
 ### Step 1: Clone the Repository
 Clone this repository to your local directory (e.g., `~/machine-bootstrap`):
 ```bash
