@@ -80,6 +80,7 @@ Because the ZeroTier network is private, your new machine must be authorized by 
    ```bash
    sudo zerotier-cli listnetworks
    ```
+5. *Note: After authorization, there can be a propagation and UDP hole-punching delay of 1–2 minutes before the machines can actively ping or SSH each other.*
 
 ### 2. Configure GitHub Authentication (Optional but Recommended)
 If you want to execute git operations (push/pull/fetch) directly on this laptop without forwarding your SSH agent:
