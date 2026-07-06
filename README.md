@@ -64,6 +64,33 @@ This script will:
 
 ---
 
+## ⚙️ Post-Bootstrap Steps
+
+After the `bootstrap_machine.sh` script completes, you need to perform the following two manual steps to finalize network access and git authentication:
+
+### 1. Authorize ZeroTier VPN Access
+Because the ZeroTier network is private, your new machine must be authorized by the network administrator to obtain an IP address and connect:
+1. On the new laptop, get your 10-digit **ZeroTier Node ID** (Address):
+   ```bash
+   sudo zerotier-cli info
+   ```
+2. Log into the **ZeroTier Central Console** ([my.zerotier.com](https://my.zerotier.com)) and select network `f3797ba7a8546f34`.
+3. Scroll down to the **Members** section, locate your new Node ID, and check the **Auth** checkbox to authorize it.
+4. Verify that the laptop receives its network IP address:
+   ```bash
+   sudo zerotier-cli listnetworks
+   ```
+
+### 2. Configure GitHub Authentication (Optional but Recommended)
+If you want to execute git operations (push/pull/fetch) directly on this laptop without forwarding your SSH agent:
+1. Authenticate with GitHub using the CLI:
+   ```bash
+   gh auth login
+   ```
+2. Choose **SSH** as your preferred protocol and allow the tool to upload your newly generated public key (`~/.ssh/id_ed25519.pub`) directly to your GitHub profile.
+
+---
+
 ## 🔑 SSH Agent Forwarding (Pro-Tip for Headless Servers)
 Instead of generating a new SSH key on every server and copying it to GitHub, you can use **SSH Agent Forwarding**. This lets the remote server securely authenticate with GitHub using the SSH keys already present on your local machine.
 
