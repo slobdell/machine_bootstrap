@@ -70,7 +70,7 @@ if [ -n "${EXTRA_REPOS_TO_CLONE}" ]; then
         REPO_NAME=$(basename "${repo}" .git)
         if [ ! -d "${REPO_NAME}" ]; then
             echo "Cloning configured repository into $HOME/projects/${REPO_NAME}..."
-            git clone "${repo}"
+            git clone "${repo}" || echo "Warning: Failed to clone ${repo}. You may need to authenticate first."
         else
             echo "Repository ${REPO_NAME} already exists in $HOME/projects, skipping clone."
         fi
