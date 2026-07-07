@@ -77,7 +77,8 @@ sudo apt install -y \
     ripgrep \
     openssh-server \
     python3-venv \
-    libfuse2
+    libfuse2 \
+    util-linux-extra
 
 echo "--- Configuring SSH ---"
 sudo systemctl enable --now ssh
