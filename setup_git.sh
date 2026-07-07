@@ -24,7 +24,10 @@ else
 fi
 
 # Add key to ssh-agent
-eval "$(ssh-agent -s)"
+if [ -z "$SSH_AUTH_SOCK" ]; then
+    echo "No SSH agent detected, starting one..."
+    eval "$(ssh-agent -s)"
+fi
 ssh-add "$HOME/.ssh/id_ed25519"
 
 # Configure ssh client config for GitHub
