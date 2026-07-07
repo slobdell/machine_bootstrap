@@ -112,3 +112,5 @@ Instead of generating a new SSH key on every server and copying it to GitHub, yo
        ForwardAgent yes
    ```
 Once connected, commands like `git clone` or `git pull` on the remote server will transparently utilize your local SSH key!
+
+*Note: For agent forwarding to function correctly when connecting to GitHub, ensure that the remote server's `~/.ssh/config` file does not restrict key usage (i.e., configure `IdentitiesOnly no` instead of `yes` for `Host github.com` so the client can query your forwarded agent).*

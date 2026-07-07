@@ -38,7 +38,7 @@ Host github.com
     HostName github.com
     User git
     IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
+    IdentitiesOnly no
 EOF
     chmod 600 "$HOME/.ssh/config"
 fi
