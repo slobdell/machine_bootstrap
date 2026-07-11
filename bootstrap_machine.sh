@@ -84,6 +84,14 @@ echo "--- Configuring SSH ---"
 sudo systemctl enable --now ssh
 sudo ufw allow ssh || true
 
+echo "--- Configuring CPU Performance Governor ---"
+sudo apt install -y cpufrequtils
+echo 'GOVERNOR="performance"' | sudo tee /etc/default/cpufrequtils
+# On newer Ubuntu releases, the ondemand service is deprecated/removed.
+# We disable it if present, but ignore any "Unit does not exist" errors.
+sudo systemctl disable ondemand 2>/dev/null || true
+sudo systemctl restart cpufrequtils || true
+
 echo "--- Installing Programming Languages ---"
 sudo apt install -y python3-pip python3-venv python3-dev
 
