@@ -21,5 +21,48 @@ if ! command -v zerotier-cli &> /dev/null; then
     curl -s https://install.zerotier.com | sudo bash
 fi
 
+echo "Configuring ZeroTier local.conf to blacklist physical IPv6 paths..."
+sudo mkdir -p /var/lib/zerotier-one
+cat << 'EOF' | sudo tee /var/lib/zerotier-one/local.conf > /dev/null
+{
+  "physical": {
+    "::/0": {
+      "blacklist": true
+    }
+  }
+}
+EOF
+
+echo "Restarting ZeroTier service to apply local.conf changes..."
+sudo systemctl restart zerotier-one
+
+echo "Installing NetworkManager dispatcher script for ZeroTier MTU clamping..."
+sudo mkdir -p /etc/NetworkManager/dispatcher.d
+cat << 'EOF' | sudo tee /etc/NetworkManager/dispatcher.d/99-zerotier-mtu.sh > /dev/null
+#!/bin/bash
+
+# NetworkManager dispatcher script to clamp ZeroTier interface MTU to 1300.
+INTERFACE=$1
+ACTION=$2
+
+if [[ "$INTERFACE" =~ ^zt ]]; then
+    if [ "$ACTION" = "up" ] || [ "$ACTION" = "pre-up" ]; then
+        echo "ZeroTier interface $INTERFACE is $ACTION. Clamping MTU to 1300..."
+        ip link set dev "$INTERFACE" mtu 1300
+    fi
+fi
+EOF
+
+sudo chmod 755 /etc/NetworkManager/dispatcher.d/99-zerotier-mtu.sh
+sudo chown root:root /etc/NetworkManager/dispatcher.d/99-zerotier-mtu.sh
+
 echo "Joining ZeroTier network: ${ZEROTIER_NETWORK_ID}..."
 sudo zerotier-cli join "${ZEROTIER_NETWORK_ID}"
+
+# Immediately apply MTU clamp to existing ZeroTier interfaces
+echo "Applying MTU clamp to any active ZeroTier interfaces..."
+for dev in $(ip -o link show | awk -F': ' '{print $2}' | grep '^zt'); do
+    echo "Clamping MTU on $dev to 1300..."
+    sudo ip link set dev "$dev" mtu 1300 || true
+done
+

@@ -11,7 +11,7 @@ This repository contains personal machine-bootstrapping scripts and dotfiles to 
   - Custom colored Git status and branch prompt (via `git-prompt.sh`).
   - ArduPilot completion rules and Gazebo simulation paths.
 - **Skins & Utilities**: CMake, Git LFS, htop, ripgrep, tree, ffmpeg, net-tools, etc.
-- **Identity & Networking**: Git credentials setup, SSH key registration, and ZeroTier LAN connection.
+- **Identity & Networking**: Git credentials setup, SSH key registration, and ZeroTier LAN connection (featuring automated MTU clamping and IPv6 transport blacklist fixes for stability).
 - **Development Ecosystems**: Python, Go, and Arduino toolchain (`arduino-cli` + Teensy 4.x support + Arduino IDE AppImage).
 
 ---
@@ -82,7 +82,12 @@ Because the ZeroTier network is private, your new machine must be authorized by 
    ```
 5. *Note: After authorization, there can be a propagation and UDP hole-punching delay of 1–2 minutes before the machines can actively ping or SSH each other.*
 
-### 2. Configure GitHub Authentication (Optional but Recommended)
+### 2. ZeroTier Network Stability & Latency Optimization (Automated)
+To prevent SSH sessions from hanging and to optimize local latency, the bootstrap scripts automatically configure:
+- **MTU Clamping**: Enforces an MTU limit of `1300` on virtual ZeroTier interfaces using a NetworkManager dispatcher hook (`/etc/NetworkManager/dispatcher.d/99-zerotier-mtu.sh`). This avoids MTU Black Hole fragmentation issues (where the physical MTU is 1500 but ZeroTier defaults to 2800, leading to packet drops).
+- **IPv4 Transport Priority**: Disables physical IPv6 peer discovery by blacklisting `::/0` in `/var/lib/zerotier-one/local.conf`. This forces ZeroTier to discover local peers exclusively via IPv4 transport, lowering baseline latency to sub-5ms expectations by bypassing poor local router multicast IPv6 optimization.
+
+### 3. Configure GitHub Authentication (Optional but Recommended)
 If you want to execute git operations (push/pull/fetch) directly on this laptop without forwarding your SSH agent:
 1. Authenticate with GitHub using the CLI:
    ```bash
