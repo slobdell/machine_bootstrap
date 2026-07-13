@@ -46,10 +46,12 @@ INTERFACE=$1
 ACTION=$2
 
 if [[ "$INTERFACE" =~ ^zt ]]; then
-    if [ "$ACTION" = "up" ] || [ "$ACTION" = "pre-up" ]; then
-        echo "ZeroTier interface $INTERFACE is $ACTION. Clamping MTU to 1300..."
+    # ZeroTier might configure the interface and reset the MTU after it comes up.
+    # We run in the background and wait 2 seconds before clamping the MTU.
+    (
+        sleep 2
         ip link set dev "$INTERFACE" mtu 1300
-    fi
+    ) &
 fi
 EOF
 
