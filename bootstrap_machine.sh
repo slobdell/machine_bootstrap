@@ -70,6 +70,7 @@ sudo apt install -y \
     curl \
     wget \
     htop \
+    iotop \
     tree \
     xclip \
     ffmpeg \
