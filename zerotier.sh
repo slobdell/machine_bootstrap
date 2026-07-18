@@ -59,7 +59,14 @@ sudo chmod 755 /etc/NetworkManager/dispatcher.d/99-zerotier-mtu.sh
 sudo chown root:root /etc/NetworkManager/dispatcher.d/99-zerotier-mtu.sh
 
 echo "Joining ZeroTier network: ${ZEROTIER_NETWORK_ID}..."
-sudo zerotier-cli join "${ZEROTIER_NETWORK_ID}"
+for i in {1..5}; do
+    if sudo zerotier-cli join "${ZEROTIER_NETWORK_ID}"; then
+        echo "Successfully requested join!"
+        break
+    fi
+    echo "ZeroTier daemon may still be starting. Retrying in 2 seconds... (attempt $i/5)"
+    sleep 2
+done
 
 # Immediately apply MTU clamp to existing ZeroTier interfaces
 echo "Applying MTU clamp to any active ZeroTier interfaces..."
