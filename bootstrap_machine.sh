@@ -199,6 +199,9 @@ bash "${SCRIPT_DIR}/setup_git.sh"
 # 3. Join ZeroTier network
 bash "${SCRIPT_DIR}/zerotier.sh"
 
+# 4. Set up Android CLI development environment
+bash "${SCRIPT_DIR}/setup_android.sh"
+
 # Ensure projects directory and all cloned repos are owned by the target user
 echo "--- Ensuring correct ownership on projects directory ---"
 sudo chown -R "${TARGET_USER}:${TARGET_USER}" "${TARGET_HOME}/projects" 2>/dev/null || true
