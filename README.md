@@ -97,6 +97,28 @@ If you want to execute git operations (push/pull/fetch) directly on this laptop 
 
 ---
 
+## 🍎 macOS (Non-Developer Machines)
+`setup_mac.sh` sets up a fresh Mac for someone else without logging into any of your accounts. It only uses tools that ship with macOS (no Homebrew/Xcode needed) and:
+- Installs the **Claude desktop app** to `/Applications` (falls back to Claude's auto-update feed, since the claude.ai DMG link blocks `curl`).
+- Installs the **Claude Code CLI** (`claude`) and adds `~/.local/bin` to `PATH` in `~/.zshrc`.
+- Installs **ZeroTier**, applies the same IPv6 transport blacklist as Linux (in `/Library/Application Support/ZeroTier/One/local.conf`), joins the network, and prints the Node ID. MTU clamping is not applied (the dispatcher hook is Linux-only).
+
+To get the script onto the Mac without logging in to GitHub, serve just that file from a Linux machine on the same LAN (don't serve the repo directory, since `config.env` is in it):
+```bash
+mkdir -p /tmp/serve && cp setup_mac.sh /tmp/serve/ && cd /tmp/serve && python3 -m http.server 8000
+```
+Then, in Terminal on the Mac:
+```bash
+curl -fsSLO http://<linux-lan-ip>:8000/setup_mac.sh && bash setup_mac.sh
+```
+Afterwards:
+1. Authorize the printed Node ID in ZeroTier Central (see above).
+2. Open a new Terminal and run `claude` (or open Claude.app); the user signs in with their own account.
+3. *Optional:* enable SSH via **System Settings → General → Sharing → Remote Login** (off by default on macOS), or `sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist`.
+4. The first `git` invocation will prompt to install the Xcode Command Line Tools; accept it.
+
+---
+
 ## 🔑 SSH Agent Forwarding (Pro-Tip for Headless Servers)
 Instead of generating a new SSH key on every server and copying it to GitHub, you can use **SSH Agent Forwarding**. This lets the remote server securely authenticate with GitHub using the SSH keys already present on your local machine.
 
