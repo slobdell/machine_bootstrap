@@ -123,11 +123,13 @@ if [ ! -d "$PROJECTS_DIR/ardupilot" ]; then
 fi
 
 echo "--- Installing arduino-cli & Teensy Rules ---"
-curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
-sudo mv ./bin/arduino-cli /usr/local/bin/
-rm -rf ./bin
+if ! command -v arduino-cli &> /dev/null; then
+    curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+    sudo mv ./bin/arduino-cli /usr/local/bin/
+    rm -rf ./bin
+fi
 
-wget https://www.pjrc.com/teensy/00-teensy.rules
+wget -q https://www.pjrc.com/teensy/00-teensy.rules -O 00-teensy.rules
 sudo mv 00-teensy.rules /etc/udev/rules.d/
 
 sudo udevadm control --reload-rules
@@ -202,6 +204,12 @@ bash "${SCRIPT_DIR}/zerotier.sh"
 # 4. Set up Android CLI development environment
 bash "${SCRIPT_DIR}/setup_android.sh"
 
+# 5. Install Docker Engine
+bash "${SCRIPT_DIR}/setup_docker.sh"
+
+# 6. NVIDIA driver, CUDA toolkit, and container runtime (skips if no NVIDIA GPU)
+bash "${SCRIPT_DIR}/setup_gpu.sh"
+
 # Ensure projects directory and all cloned repos are owned by the target user
 echo "--- Ensuring correct ownership on projects directory ---"
 sudo chown -R "${TARGET_USER}:${TARGET_USER}" "${TARGET_HOME}/projects" 2>/dev/null || true
@@ -212,4 +220,8 @@ sudo apt autoremove -y
 echo "========================================================================"
 echo "🎉 Machine Bootstrap Orchestration Complete!"
 echo "NOTE: Please log out and log back in to apply group membership changes."
+if [ -f /var/run/reboot-required ]; then
+    echo "⚠️  A REBOOT IS REQUIRED (kernel and/or NVIDIA driver update)."
+    echo "After rebooting, re-run ./bootstrap_machine.sh to verify; it is safe to re-run."
+fi
 echo "========================================================================"

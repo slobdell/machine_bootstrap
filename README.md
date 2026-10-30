@@ -22,6 +22,13 @@ If you are setting up dual-boot Windows & Ubuntu on a laptop, please follow the 
 
 Once Ubuntu is installed, proceed with the following steps.
 
+### Step 0 (Optional): Enable Remote Access
+A fresh Ubuntu Desktop install has no SSH server. To drive the rest of the setup remotely, run this once at the machine's own keyboard:
+```bash
+sudo apt update && sudo apt install -y openssh-server && sudo systemctl enable --now ssh
+```
+Then, from your existing machine, run `ssh-copy-id <user>@<new-machine-ip>` in a regular terminal (it prompts for the password, so it can't be run non-interactively).
+
 ### Step 1: Clone the Repository
 On your fresh Ubuntu installation, open a terminal (`Ctrl + Alt + T`). First, install `git` so that you can clone this repository:
 ```bash
@@ -59,6 +66,9 @@ This script will:
 6. Install vim-nox, set default editors, and finalize file ownerships.
 7. Generate SSH keys, map them to `github.com` in `~/.ssh/config`, and output the public key to add to GitHub.
 8. Install and configure ZeroTier.
+9. Set up the Android SDK, Docker Engine, and (if an NVIDIA GPU is present) the NVIDIA driver, CUDA toolkit, and NVIDIA Container Toolkit. See [NVIDIA GPU Machines](#-nvidia-gpu-machines).
+
+The script is safe to re-run. If it reports that a reboot is required (new kernel or NVIDIA driver), reboot and run it again to verify.
 
 *Note: You should log out and log back in for all changes (such as the `dialout` group membership) to take effect.*
 
@@ -94,6 +104,24 @@ If you want to execute git operations (push/pull/fetch) directly on this laptop 
    gh auth login
    ```
 2. Choose **SSH** as your preferred protocol and allow the tool to upload your newly generated public key (`~/.ssh/id_ed25519.pub`) directly to your GitHub profile.
+
+---
+
+## 🎮 NVIDIA GPU Machines
+`setup_gpu.sh` (run automatically by the bootstrap; exits immediately if there is no NVIDIA GPU):
+- Installs the NVIDIA driver with the **open kernel modules** (`nvidia-driver-<branch>-open`) via `ubuntu-drivers`. RTX 50xx (Blackwell) and newer cards *only* work with the open modules. The Ubuntu installer's "third-party drivers" checkbox installs the proprietary flavor, which fails with `requires use of the NVIDIA open kernel modules` in `journalctl -k`: no display output from the card, and `nvidia-smi` reports "No devices were found". The script purges any other driver branch/flavor first.
+- Uses Canonical's **precompiled, signed** modules, so it works with **Secure Boot on** (no MOK enrollment, no DKMS) and tracks kernel upgrades.
+- Installs the CUDA toolkit from NVIDIA's repo (`nvcc` on `PATH` via `/etc/profile.d/cuda.sh`). An apt pin stops that repo from ever replacing the Ubuntu driver packages.
+- Enables `nvidia-persistenced` and, if Docker is installed, the NVIDIA Container Toolkit (`docker run --gpus all ...`).
+- Pin versions with `NVIDIA_DRIVER_BRANCH` / `CUDA_TOOLKIT_PACKAGE` in `config.env`.
+
+Verify after a reboot:
+```bash
+nvidia-smi
+nvcc --version
+docker run --rm --gpus all ubuntu nvidia-smi
+```
+*Tip:* On CPUs with integrated graphics, plugging the monitor into the motherboard leaves all GPU VRAM free for compute; plugging it into the card also works once the driver is installed.
 
 ---
 
