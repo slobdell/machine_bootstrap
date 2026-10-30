@@ -93,6 +93,17 @@ echo 'GOVERNOR="performance"' | sudo tee /etc/default/cpufrequtils
 sudo systemctl disable ondemand 2>/dev/null || true
 sudo systemctl restart cpufrequtils || true
 
+echo "--- Installing Google Chrome ---"
+# The .deb also registers Google's apt repo, so Chrome updates with apt upgrade.
+if ! command -v google-chrome &> /dev/null; then
+    TMP_DEB=$(mktemp --suffix=.deb)
+    curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o "${TMP_DEB}"
+    sudo apt install -y "${TMP_DEB}"
+    rm -f "${TMP_DEB}"
+else
+    echo "Google Chrome is already installed."
+fi
+
 echo "--- Installing Programming Languages ---"
 sudo apt install -y python3-pip python3-venv python3-dev
 
@@ -209,6 +220,13 @@ bash "${SCRIPT_DIR}/setup_docker.sh"
 
 # 6. NVIDIA driver, CUDA toolkit, and container runtime (skips if no NVIDIA GPU)
 bash "${SCRIPT_DIR}/setup_gpu.sh"
+
+# 7. GPU research environment: Miniforge, PyTorch, JupyterLab (skips if no NVIDIA GPU)
+if nvidia-smi -L &> /dev/null; then
+    bash "${SCRIPT_DIR}/setup_research.sh"
+else
+    echo "GPU not ready yet; skipping setup_research.sh (re-run after reboot)."
+fi
 
 # Ensure projects directory and all cloned repos are owned by the target user
 echo "--- Ensuring correct ownership on projects directory ---"

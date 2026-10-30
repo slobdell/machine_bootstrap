@@ -10,7 +10,7 @@ This repository contains personal machine-bootstrapping scripts and dotfiles to 
 - **Shell**: Bash configuration `.bashrc` featuring:
   - Custom colored Git status and branch prompt (via `git-prompt.sh`).
   - ArduPilot completion rules and Gazebo simulation paths.
-- **Skins & Utilities**: CMake, Git LFS, htop, ripgrep, tree, ffmpeg, net-tools, etc.
+- **Skins & Utilities**: Google Chrome, CMake, Git LFS, htop, ripgrep, tree, ffmpeg, net-tools, etc.
 - **Identity & Networking**: Git credentials setup, SSH key registration, and ZeroTier LAN connection (featuring automated MTU clamping and IPv6 transport blacklist fixes for stability).
 - **Development Ecosystems**: Python, Go, and Arduino toolchain (`arduino-cli` + Teensy 4.x support + Arduino IDE AppImage).
 
@@ -67,6 +67,7 @@ This script will:
 7. Generate SSH keys, map them to `github.com` in `~/.ssh/config`, and output the public key to add to GitHub.
 8. Install and configure ZeroTier.
 9. Set up the Android SDK, Docker Engine, and (if an NVIDIA GPU is present) the NVIDIA driver, CUDA toolkit, and NVIDIA Container Toolkit. See [NVIDIA GPU Machines](#-nvidia-gpu-machines).
+10. If the GPU is working, set up the GPU research environment (Miniforge, PyTorch, JupyterLab). See [GPU Research Environment](#-gpu-research-environment).
 
 The script is safe to re-run. If it reports that a reboot is required (new kernel or NVIDIA driver), reboot and run it again to verify.
 
@@ -122,6 +123,15 @@ nvcc --version
 docker run --rm --gpus all ubuntu nvidia-smi
 ```
 *Tip:* On CPUs with integrated graphics, plugging the monitor into the motherboard leaves all GPU VRAM free for compute; plugging it into the card also works once the driver is installed.
+
+### 🔬 GPU Research Environment
+`setup_research.sh` (run automatically by the bootstrap once `nvidia-smi` works; safe to re-run by hand):
+- Installs `nvtop` and **Miniforge** (conda + mamba) in `~/miniforge3`, hooked into `~/.bashrc` without auto-activating `base`.
+- Creates a shared `research` conda env: scientific Python, JupyterLab, and PyTorch from the `cu128` wheel index (the oldest CUDA build that supports RTX 50xx). PyTorch bundles its own CUDA runtime, so it only depends on the driver, not the system CUDA toolkit.
+- Adds two commands to `~/.local/bin`:
+  - `research-jupyter` starts JupyterLab in a detached `screen` session named `jupyter`, bound to localhost only. From a laptop: `ssh -L 8888:localhost:8888 <host>`, then open the printed URL.
+  - `research-gpu-check` confirms PyTorch can compute on the GPU and prints a bf16 TFLOPS number.
+- Override `RESEARCH_ENV` / `TORCH_INDEX_URL` / `JUPYTER_PORT` in `config.env`. Project-specific tools belong in each project's own env, not here.
 
 ---
 
