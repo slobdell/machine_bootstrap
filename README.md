@@ -139,9 +139,14 @@ docker run --rm --gpus all ubuntu nvidia-smi
 `setup_mac.sh` sets up a fresh Mac for someone else without logging into any of your accounts. It only uses tools that ship with macOS (no Homebrew/Xcode needed) and:
 - Installs the **Claude desktop app** to `/Applications` (falls back to Claude's auto-update feed, since the claude.ai DMG link blocks `curl`).
 - Installs the **Claude Code CLI** (`claude`) and adds `~/.local/bin` to `PATH` in `~/.zshrc`.
+- Installs the **GitHub CLI** (`gh`) from its official macOS `.pkg`, so the user can sign in to GitHub in a browser and push over HTTPS.
 - Installs **ZeroTier**, applies the same IPv6 transport blacklist as Linux (in `/Library/Application Support/ZeroTier/One/local.conf`), joins the network, and prints the Node ID. MTU clamping is not applied (the dispatcher hook is Linux-only).
 
-To get the script onto the Mac without logging in to GitHub, serve just that file from a Linux machine on the same LAN (don't serve the repo directory, since `config.env` is in it):
+This repo is public, so from anywhere, in Terminal on the Mac:
+```bash
+curl -fsSLO https://raw.githubusercontent.com/slobdell/machine_bootstrap/main/setup_mac.sh && bash setup_mac.sh
+```
+Or, on the same LAN, serve just that file from a Linux machine (don't serve the repo directory, since `config.env` is in it):
 ```bash
 mkdir -p /tmp/serve && cp setup_mac.sh /tmp/serve/ && cd /tmp/serve && python3 -m http.server 8000
 ```
@@ -154,6 +159,7 @@ Afterwards:
 2. Open a new Terminal and run `claude` (or open Claude.app); the user signs in with their own account.
 3. *Optional:* enable SSH via **System Settings → General → Sharing → Remote Login** (off by default on macOS), or `sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist`.
 4. The first `git` invocation will prompt to install the Xcode Command Line Tools; accept it.
+5. To push to GitHub, the user signs in with their own GitHub account: `gh auth login --web --git-protocol https && gh auth setup-git`.
 
 ---
 

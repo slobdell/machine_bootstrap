@@ -1,6 +1,7 @@
 #!/bin/bash
 # Bootstrap a fresh macOS machine for a non-developer user:
 #   - Installs the Claude desktop app and Claude Code CLI (the user signs in themselves)
+#   - Installs the GitHub CLI (gh); the user runs `gh auth login` themselves
 #   - Installs ZeroTier, applies the IPv6 transport blacklist, and joins the network
 #
 # No Homebrew / Xcode CLT required; only uses tools that ship with macOS.
@@ -63,7 +64,19 @@ if ! grep -qs '.local/bin' "${HOME}/.zshrc"; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "${HOME}/.zshrc"
 fi
 
-# 3. ZeroTier
+# 3. GitHub CLI (gh), so the user can sign in to GitHub in a browser and push over HTTPS
+if command -v gh &> /dev/null; then
+    echo "GitHub CLI (gh) is already installed."
+else
+    echo "Downloading GitHub CLI..."
+    GH_PKG_URL="$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest \
+        | grep -o '"browser_download_url": *"[^"]*_macOS_universal\.pkg"' | cut -d'"' -f4)"
+    curl -fL -o "${WORK_DIR}/gh.pkg" "${GH_PKG_URL}"
+    echo "Installing GitHub CLI..."
+    sudo installer -pkg "${WORK_DIR}/gh.pkg" -target /
+fi
+
+# 4. ZeroTier
 ZT_CLI="/usr/local/bin/zerotier-cli"
 ZT_HOME="/Library/Application Support/ZeroTier/One"
 if [ -x "${ZT_CLI}" ]; then
@@ -116,4 +129,8 @@ echo "     sudo zerotier-cli listnetworks"
 echo
 echo " Open Claude from /Applications (or run claude in a new Terminal) and sign in"
 echo " with the user's own account."
+echo
+echo " To push to GitHub, sign in once with the user's own GitHub account:"
+echo "     gh auth login --web --git-protocol https && gh auth setup-git"
+echo " (The first git command may prompt to install Apple's command line tools; accept it.)"
 echo "=================================================================="
